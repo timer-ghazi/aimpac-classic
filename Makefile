@@ -19,7 +19,7 @@ LDFLAGS =
 
 # Source files
 # Note: Legacy source is treated separately
-SRC_LEGACY = gridv.f77
+SRC_LEGACY = gridv.f
 SRCS_MODERN = modules.f90 gridv.f90
 
 # Object files are derived from modern sources
@@ -39,14 +39,14 @@ VALIDATE_SCRIPT = ./validate.py
 # --- Targets ---
 
 # Phony targets do not correspond to actual files
-.PHONY: all clean test validate baseline
+.PHONY: all clean test validate baseline legacy
 
 # The default target, executed when you just run 'make'
 all: $(EXEC_MODERN)
 
 # Rule to build the modern executable
 $(EXEC_MODERN): $(OBJS_MODERN)
-	$(FC) $(FFLAGS) $(FFLAGS_OMP) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FFLAGS)  -o $@ $^ $(LDFLAGS)
 	@echo "Modern executable '$(EXEC_MODERN)' is ready."
 
 # Rule to build the legacy executable (for baseline creation)
@@ -58,7 +58,7 @@ $(EXEC_LEGACY): $(SRC_LEGACY)
 # The -c flag means 'compile only, do not link'
 # This automatically handles dependencies (e.g., gridv.o depends on modules.mod)
 %.o: %.f90
-	$(FC) $(FFLAGS) $(FFLAGS_OMP) -c $< -o $@
+	$(FC) $(FFLAGS)  -c $< -o $@
 
 # --- Workflow Targets ---
 
@@ -78,6 +78,9 @@ test: $(EXEC_MODERN)
 
 # 'validate' is an alias for 'test'
 validate: test
+
+# Target to build the legacy executable
+legacy: $(EXEC_LEGACY)
 
 # Target to clean up all generated files
 clean:
