@@ -20,7 +20,8 @@ LDFLAGS =
 # Source files
 # Note: Legacy source is treated separately
 SRC_LEGACY = gridv.f
-SRCS_MODERN = modules.f90 gridv.f90
+# Modern source files with proper dependency order (modules first)
+SRCS_MODERN = gridv_modules.f90 gridv_utils.f90 gridv_linalg.f90 gridv_geometry.f90 gridv_io.f90 gridv_calculations.f90 gridv_main.f90
 
 # Object files are derived from modern sources
 OBJS_MODERN = $(SRCS_MODERN:.f90=.o)
