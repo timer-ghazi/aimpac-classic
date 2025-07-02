@@ -1,8 +1,18 @@
 SUBROUTINE      TQLGRM  (N, D, E, Z, IERR)
-   IMPLICIT        DOUBLE PRECISION (A-H, O-Z)
-   DIMENSION       D(N), E(N), Z(N,N)
-   PARAMETER (AMACH = 16.0E-13)
-   PARAMETER (ZERO = 0.0D0, ONE = 1.0D0)
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: N
+   real(8), intent(inout) :: D(N), E(N), Z(N,N)
+   integer, intent(out) :: IERR
+   
+   ! Parameters
+   real(8), parameter :: AMACH = 16.0E-13
+   real(8), parameter :: ZERO = 0.0D0, ONE = 1.0D0
+   
+   ! Local variables
+   integer :: I, J, L, M, L1, II, MML, K
+   real(8) :: F, B, H, G, P, R, C, S
 !
    IERR    = 0
    IF (N .EQ. 1) RETURN
@@ -121,8 +131,12 @@ SUBROUTINE      TRACE   (H, E, W, N, IERR)
 ! THE WORK STORE W SHOULD BE AT LEAST OF DIMENSION N.
 ! SKK ==================================================================
 !
-   IMPLICIT        DOUBLE PRECISION (A-H, O-Z)
-   DIMENSION       H(N,N), E(N), W(N)
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: N
+   real(8), intent(inout) :: H(N,N), E(N), W(N)
+   integer, intent(out) :: IERR
 !
    CALL TREDIG     (N, E, W, H)
    CALL TQLGRM     (N, E, W, H, IERR)
@@ -131,9 +145,19 @@ SUBROUTINE      TRACE   (H, E, W, N, IERR)
 END
 
 SUBROUTINE      TREDIG  (N, D, E, Z)
-   IMPLICIT        DOUBLE PRECISION (A-H, O-Z)
-   DIMENSION       D(N), E(N), Z(N,N)
-   PARAMETER       (ZERO = 0.0D0, ONE = 1.0D0)
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: N
+   real(8), intent(out) :: D(N), E(N)
+   real(8), intent(inout) :: Z(N,N)
+   
+   ! Parameters
+   real(8), parameter :: ZERO = 0.0D0, ONE = 1.0D0
+   
+   ! Local variables
+   integer :: II, I, L, K, J, JP1
+   real(8) :: H, SCALE, RSCALE, F, G, RH, RHSCALE, HH
 
    IF (N .EQ. 1) GOTO 320
 
