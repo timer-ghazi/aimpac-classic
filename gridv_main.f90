@@ -93,12 +93,8 @@ PROGRAM GRIDV
       IF (NUMBER(LINE,LPST,NUM,XY(I)) .GT. 0) GOTO 990
 100 CONTINUE
 !
-   IF ( IDINT(XY(1)/XY(2)) .GT. MPTS) THEN
-      WRITE (IOUT,101) "The maximum number of points on each side"//&
-      &" of the grid is ", MPTS
-101   FORMAT(A55,I5)
-      GOTO 1010
-   ENDIF
+   NX = IDINT(XY(1)/XY(2))
+   CALL allocate_grid(NX)
 !
    read (20,200) LINE
    LPST = 8
@@ -213,6 +209,7 @@ PROGRAM GRIDV
       WRITE (IOUT,*) (GRD(INDX+I),I=1,NX)
 190 CONTINUE
 !
+   CALL cleanup_grid()
    STOP
 !
 !  INPUT ERROR CODES

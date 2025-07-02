@@ -1,7 +1,7 @@
 MODULE grid_data
    IMPLICIT NONE
-   INTEGER, PARAMETER :: MPTS = 2000
-   REAL :: GRD(MPTS*MPTS)
+   INTEGER :: MPTS = 2000  ! Now a variable, not parameter
+   REAL, ALLOCATABLE :: GRD(:)
 END MODULE grid_data
 
 MODULE molecular_data
