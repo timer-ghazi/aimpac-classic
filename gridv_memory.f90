@@ -2,7 +2,7 @@
 
 SUBROUTINE allocate_grid(grid_size)
    USE grid_data
-   IMPLICIT NONE
+   implicit none
    INTEGER, INTENT(IN) :: grid_size
    INTEGER :: ierr
    
@@ -20,7 +20,7 @@ END SUBROUTINE allocate_grid
 
 SUBROUTINE cleanup_grid()
    USE grid_data
-   IMPLICIT NONE
+   implicit none
    
    IF (ALLOCATED(GRD)) DEALLOCATE(GRD)
    
