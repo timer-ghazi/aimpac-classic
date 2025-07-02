@@ -1,14 +1,17 @@
 SUBROUTINE EULER (E,A)
 !
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+   implicit none
 !
 !   CALCULATE THE ROTATION MATRICES USING
 !   EULER ANGLES
 !
-   DIMENSION E(3), A(9)
-!
-   Save One,Two
-   DATA One/1.0d0/,Two/2.0d0/
+   ! Arguments
+   real(8), intent(in) :: E(3)
+   real(8), intent(out) :: A(9)
+   
+   ! Local variables
+   real(8), save :: One = 1.0d0, Two = 2.0d0
+   real(8) :: PI, RADIAN, E1, E2, E3, SA, SB, SC, CA, CB, CC
 !
    PI=DACOS(-ONE)
 !
@@ -39,11 +42,19 @@ SUBROUTINE EULER (E,A)
 END
 
 SUBROUTINE GROCKLE (N, X, IR, S, E)
-   IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-   DIMENSION X(3,N), S(3,N), C(3), E(3,3), EV(3), R(3,3)
-   INTEGER IR(N)
-   save Zero,One
-   Data Zero/0.0d0/,One/1.0d0/
+   implicit none
+   
+   ! Arguments  
+   integer, intent(in) :: N
+   real(8), intent(in) :: X(3,N), S(3,N)
+   integer, intent(in) :: IR(N)
+   real(8), intent(out) :: E(3,3)
+   
+   ! Local variables
+   real(8) :: C(3), EV(3), R(3,3)
+   real(8), save :: Zero = 0.0d0, One = 1.0d0
+   integer :: I, M, IFAIL
+   real(8) :: DD, X1, X2, X3, DET
 !
 !    ZERO OUT CENTROID AND EIGENVECTORS
 !
@@ -59,7 +70,7 @@ SUBROUTINE GROCKLE (N, X, IR, S, E)
 !
 !    CENTROID OF FRAGMENT
 !
-   M = ZERO
+   M = 0
    DO 100 I = 1, N
       IF (IR(I) .GT. 0) THEN
          C(1) = C(1) + X(1,IR(I))
