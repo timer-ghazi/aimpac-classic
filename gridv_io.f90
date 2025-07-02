@@ -5,7 +5,7 @@ SUBROUTINE RDPSI
    USE string_data
    USE computation_data
    USE io_units
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+   implicit none
 !
 !  RDPSI READS AIMPAC WAVEFUNCTION FILE.
 !
@@ -34,8 +34,12 @@ SUBROUTINE RDPSI
 !     TOTE  - MOLECULAR ENERGY
 !     GAMMA - VIRIAL RATIO (V/T)
 !
-   CHARACTER*80 LINE
-   DIMENSION ITYPE(2000),CO(2000,500),ICENT(2000),EX(2000)
+   ! Local variables
+   character(len=80) :: LINE
+   integer :: ITYPE(2000), ICENT(2000)
+   real(8) :: CO(2000,500), EX(2000)
+   integer :: I, J, K, L, M, N, NDUM
+   character(len=4) :: MODE
 !
 !    THE ITYPE ARRAY REPRESENTS THE FOLLOWING GAUSSIAN ORBITAL TYPES:
 !     S
