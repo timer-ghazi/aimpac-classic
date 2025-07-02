@@ -35,14 +35,23 @@ PROGRAM GRIDV
    USE string_data
    USE io_units
    USE computation_data
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-   CHARACTER*80 LINE
-   CHARACTER*8 WORD
-   CHARACTER*40 WINP,WOUT,WFN,WDBG
-   CHARACTER*4 FINP /'.inf'/, FOUT /'.grd'/, FWFN /'.wfn'/
-   DIMENSION A(3,3),IR(MCENT),CX(3),E(3),CT(3)
-   DIMENSION XS(3,MCENT),X(3,MCENT),XY(4)
-   DATA LEVEL/1/,NAE/99/,ISRF/2/
+   implicit none
+   
+   ! Local variables
+   character(len=80) :: LINE
+   character(len=8) :: WORD
+   character(len=40) :: WINP, WOUT, WFN, WDBG
+   character(len=4) :: FINP = '.inf', FOUT = '.grd', FWFN = '.wfn'
+   real(8) :: A(3,3), CX(3), E(3), CT(3)
+   real(8) :: XS(3,MCENT), X(3,MCENT), XY(4)
+   integer :: IR(MCENT)
+   integer :: LEVEL = 1, NAE = 99, ISRF = 2
+   integer :: ILEN, I, J, K, L, NARG, NUMBER, NUM
+   integer :: IEG, IFUNC, LPST, NPLAN, NX, INDX
+   real(8) :: DEC, DNUM, XX, YY, ZZ
+   character(len=80) :: TITLE
+   
+   ! Initialize io unit numbers
    INPT = 20
    IOUT = 30
    IWFN = 10
