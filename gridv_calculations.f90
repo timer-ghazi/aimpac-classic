@@ -3,17 +3,25 @@ SUBROUTINE GAUS(XYZ,PTS,MM)
    USE molecular_data
    USE basis_data
    USE work_arrays
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+   implicit none
 !
-   DOUBLE PRECISION NINE
-   INTEGER PTS
-   DIMENSION XYZ(2000,3),DX(2000,200),DY(2000,200),&
-   &DZ(2000,200),R2(2000,200),CHI(2000,2000),&
-   &CHIX(2000,2000),CHIY(2000,2000),CHIZ(2000,2000),&
-   &CHID2(2000,2000),CHIMAX(2000)
-   Save zero,one,two,four,five,seven,three,six,nine,cutoff
-   DATA ZERO /0.D0/,ONE/1.D0/,TWO/2.D0/,FOUR/4.D0/,FIVE/5.D0/,&
-   &SEVEN/7.D0/,THREE/3.D0/,SIX/6.D0/,NINE/9.D0/,CUTOFF/1.0d-10/
+   ! Arguments
+   integer, intent(in) :: PTS, MM
+   real(8), intent(in) :: XYZ(2000,3)
+   
+   ! Local variables
+   real(8) :: DX(2000,200), DY(2000,200), DZ(2000,200)
+   real(8) :: R2(2000,200), CHI(2000,2000)
+   real(8) :: CHIX(2000,2000), CHIY(2000,2000), CHIZ(2000,2000)
+   real(8) :: CHID2(2000,2000), CHIMAX(2000)
+   real(8), save :: ZERO = 0.D0, ONE = 1.D0, TWO = 2.D0, FOUR = 4.D0, FIVE = 5.D0
+   real(8), save :: SEVEN = 7.D0, THREE = 3.D0, SIX = 6.D0, NINE = 9.D0, CUTOFF = 1.0d-10
+   integer :: I, J, K, L, IC, ITY, IK, ICL, IYYY, IZZZ, IXXY, IXXZ, IYYZ, IXYY, IXZZ, IYZZ, IXYZ
+   integer :: IS
+   real(8) :: EXP, GTMAX, EXPMAX, EXPMIN, R2MIN, R2MAX, RMS, R, R3, R4, R5, R6, R7, R8, R9, R10
+   real(8) :: X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4, X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7
+   real(8) :: XX, YY, ZZ, XY, XZ, YZ
+   real(8) :: A, B, BXX, BXY, BXZ, BYY, BYZ, BZZ, CHECK, TEMP
 !
    IF (MM .EQ. 1) GOTO 133
 !
@@ -650,11 +658,16 @@ SUBROUTINE GRDD2R (A,CX,XY)
    USE grid_data
    USE molecular_data
    USE work_arrays
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+   implicit none
 !
-   DIMENSION A(3,3),CX(3),XY(4),XYZ(2000,3),SUMR(2000)
-   Save Zero,Two
-   Data Zero/0.0d0/,Two/2.0d0/
+   ! Arguments
+   real(8), intent(in) :: A(3,3), CX(3), XY(4)
+   
+   ! Local variables
+   real(8) :: XYZ(2000,3), SUMR(2000)
+   real(8), save :: Zero = 0.0d0, Two = 2.0d0
+   integer :: IXSTP, IYSTP, IY, I, ICALC, INDX, J
+   real(8) :: XCN, YCN, ZCN, XCNT, YCNT, ZCNT
 !
 !    CALCULATE NUMBER OF STEPS IN X AND Y FOR THIS GRID AS WELL AS
 !    INCREMENT MARKERS FOR CENTERING PLOT
@@ -713,11 +726,16 @@ SUBROUTINE GRDKEG (A,CX,XY)
    USE grid_data
    USE molecular_data
    USE work_arrays
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+   implicit none
 !
-   DIMENSION A(3,3),CX(3),XY(4),XYZ(2000,3),SUMR(2000)
-   Save Zero,Two,Pt5
-   Data Zero/0.0d0/,Two/2.0d0/,Pt5/0.5d0/
+   ! Arguments
+   real(8), intent(in) :: A(3,3), CX(3), XY(4)
+   
+   ! Local variables
+   real(8) :: XYZ(2000,3), SUMR(2000)
+   real(8), save :: Zero = 0.0d0, Two = 2.0d0, Pt5 = 0.5d0
+   integer :: IXSTP, IYSTP, IY, I, ICALC, INDX, J
+   real(8) :: XCN, YCN, ZCN, XCNT, YCNT, ZCNT
 !
 !    CALCULATE NUMBER OF STEPS IN X AND Y FOR THIS GRID AS WELL AS
 !    INCREMENT MARKERS FOR CENTERING PLOT
@@ -775,11 +793,16 @@ SUBROUTINE GRDRHO (A,CX,XY)
    USE grid_data
    USE molecular_data
    USE work_arrays
-   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+   implicit none
 !
-   DIMENSION A(3,3),CX(3),XY(4),XYZ(2000,3),SUMR(2000)
-   Save Zero,Two
-   Data Zero/0.0d0/,Two/2.0d0/
+   ! Arguments
+   real(8), intent(in) :: A(3,3), CX(3), XY(4)
+   
+   ! Local variables
+   real(8) :: XYZ(2000,3), SUMR(2000)
+   real(8), save :: Zero = 0.0d0, Two = 2.0d0
+   integer :: IXSTP, IYSTP, IY, I, ICALC, INDX, J
+   real(8) :: XCN, YCN, ZCN, XCNT, YCNT, ZCNT
 !
 !    CALCULATE NUMBER OF STEPS IN X AND Y FOR THIS GRID AS WELL AS
 !    INCREMENT MARKERS FOR CENTERING PLOT
