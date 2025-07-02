@@ -1,4 +1,4 @@
-FUNCTION        NUMBER  (LINE, LPST, NUM, DEC)
+INTEGER FUNCTION NUMBER  (LINE, LPST, NUM, DEC)
 !
 ! CONVERTS A CHARACTER STRING OF NUMBERS INTO ACTUAL NUMBERS EITHER
 ! INTEGERS OR DECIMAL MAY BE READ.
@@ -6,12 +6,19 @@ FUNCTION        NUMBER  (LINE, LPST, NUM, DEC)
 !        = 2 IF CHARACTERS ARE NOT RECOGNISED AS A NUMBER, LPST IS RESET
 ! SKK ================================================================== SKK
 
-   IMPLICIT NONE
-   DOUBLE PRECISION DEC, TEN
-   CHARACTER*(*)   LINE
-   CHARACTER       BLANK, COMMA, DOT, MINUS, L
-   CHARACTER       CTEN(0:9)
-   INTEGER         ITEN, NUM, LPST, NUMBER, NP, ND, MS, LPEND, LBEFOR, I, J, N
+   implicit none
+   
+   ! Arguments
+   character(len=*), intent(in) :: LINE
+   integer, intent(inout) :: LPST
+   integer, intent(out) :: NUM
+   real(8), intent(out) :: DEC
+   
+   ! Local variables
+   real(8) :: TEN
+   character :: BLANK, COMMA, DOT, MINUS, L
+   character :: CTEN(0:9)
+   integer :: ITEN, NP, ND, MS, LPEND, LBEFOR, I, J, N
    DATA    CTEN    /'0','1','2','3','4','5','6','7','8','9'/
    PARAMETER       (BLANK = ' ', COMMA = ',')
    PARAMETER       (DOT   = '.', MINUS = '-')
