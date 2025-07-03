@@ -62,9 +62,9 @@ SUBROUTINE RDPSI
 !    READ IN ATOM NAMES, CARTESIAN COORDINATES, AND NUMBER OF
 !    ELECTRONS PER ATOM
 !
-   DO 100 I = 1,NCENT
-      read(IWFN,103) ATNAM(I),J,XC(J),YC(J),ZC(J),CHARG(J)
-100 CONTINUE
+   do i = 1, ncent
+      read(iwfn,103) atnam(i),j,xc(j),yc(j),zc(j),charg(j)
+   end do
 !
 !    READ IN FUNCTION CENTERS, FUNCTION TYPES, AND EXPONENTS
 !
@@ -75,10 +75,10 @@ SUBROUTINE RDPSI
 !    LOOP OVER MOLECULAR ORBITALS READING ORBITAL OCCUPANICES,
 !    ORBITAL ENERGIES, AND COEFFICIENTS
 !
-   DO 110 I = 1,NMO
-      read(IWFN,106) PO(I),EORB(I)
-      read(IWFN,107) (CO(J,I),J=1,NPRIMS)
-110 CONTINUE
+   do i = 1, nmo
+      read(iwfn,106) po(i),eorb(i)
+      read(iwfn,107) (co(j,i),j=1,nprims)
+   end do
 !
    read(IWFN,101) LINE
 !
@@ -86,22 +86,22 @@ SUBROUTINE RDPSI
 !
    read(IWFN,109) TOTE,GAMMA
 !
-   N=0
-   DO 160 K=1,NTYPE
-      DO 170 J=1,NPRIMS
-         IF(ITYPE(J).EQ.K) THEN
-            N=N+1
-            EXX(N)=EX(J)
-            ICT(N)=ICENT(J)
-            SUM(N)=-2.0*EX(J)
-            DIV(N)=1./SUM(N)
-            DO 180 L=1,NMO
-               COO(N,L)=CO(J,L)
-180         CONTINUE
-         ENDIF
-170   CONTINUE
-      ITP(K)=N
-160 CONTINUE
+   n = 0
+   do k = 1, ntype
+      do j = 1, nprims
+         if (itype(j) == k) then
+            n = n + 1
+            exx(n) = ex(j)
+            ict(n) = icent(j)
+            sum(n) = -2.0*ex(j)
+            div(n) = 1./sum(n)
+            do l = 1, nmo
+               coo(n,l) = co(j,l)
+            end do
+         end if
+      end do
+      itp(k) = n
+   end do
 !
    RETURN
 !    FORMATS
@@ -125,45 +125,41 @@ SUBROUTINE MAKNAME(I,STRING,L,EXT)
    EXTLEN = LEN(EXT)
 
 !     Find the length of the actual argument (before spaces)
-   L = 0
-   DO 10 N = 1,J
-      IF(STRING(N:N) .EQ. ' ') THEN
-         L = N - 1
-         GOTO 20
-      ENDIF
-10 CONTINUE
-   L = J
-
-20 CONTINUE
-   IF (L .EQ. 0) RETURN
+   l = 0
+   do n = 1, j
+      if (string(n:n) == ' ') then
+         l = n - 1
+         exit
+      end if
+   end do
+   if (l == 0) l = j
+   if (l == 0) return
 
 !     Check if filename already has the desired extension
-   IF (L .GE. EXTLEN) THEN
-      IF (STRING(L-EXTLEN+1:L) .EQ. EXT) THEN
+   if (l >= extlen) then
+      if (string(l-extlen+1:l) == ext) then
 !         Already has correct extension, just trim spaces
-         STRING = STRING(1:L)
-         RETURN
-      ENDIF
-   ENDIF
+         string = string(1:l)
+         return
+      end if
+   end if
 
 !     Check if filename has any extension (contains a dot)
    DOT_POS = 0
-   DO 30 N = L,1,-1
-      IF (STRING(N:N) .EQ. '.') THEN
-         DOT_POS = N
-         GOTO 40
-      ENDIF
-30 CONTINUE
-
-40 CONTINUE
-   IF (DOT_POS .GT. 0) THEN
+   do n = l, 1, -1
+      if (string(n:n) == '.') then
+         dot_pos = n
+         exit
+      end if
+   end do
+   if (dot_pos > 0) then
 !       Has an extension, keep the full filename as-is
-      STRING = STRING(1:L)
-   ELSE
+      string = string(1:l)
+   else
 !       No extension, add the default one
-      STRING = STRING(1:L)//EXT
-      L = L + EXTLEN
-   ENDIF
+      string = string(1:l)//ext
+      l = l + extlen
+   end if
 
    RETURN
 END
@@ -176,46 +172,42 @@ SUBROUTINE MAKNAME_DIRECT(STRING,L,EXT)
    EXTLEN = LEN(EXT)
 
 !     Find the length of the actual argument (before spaces)
-   L = 0
-   DO 10 N = 1,J
-      IF(STRING(N:N) .EQ. ' ') THEN
-         L = N - 1
-         GOTO 20
-      ENDIF
-10 CONTINUE
-   L = J
-
-20 CONTINUE
-   IF (L .EQ. 0) RETURN
+   l = 0
+   do n = 1, j
+      if (string(n:n) == ' ') then
+         l = n - 1
+         exit
+      end if
+   end do
+   if (l == 0) l = j
+   if (l == 0) return
 
 !     Check if filename already has the desired extension
-   IF (L .GE. EXTLEN) THEN
-      IF (STRING(L-EXTLEN+1:L) .EQ. EXT) THEN
+   if (l >= extlen) then
+      if (string(l-extlen+1:l) == ext) then
 !         Already has correct extension, just trim spaces
-         STRING = STRING(1:L)
-         RETURN
-      ENDIF
-   ENDIF
+         string = string(1:l)
+         return
+      end if
+   end if
 
 !     Check if filename has any extension (contains a dot)
    DOT_POS = 0
-   DO 30 N = L,1,-1
-      IF (STRING(N:N) .EQ. '.') THEN
-         DOT_POS = N
-         GOTO 40
-      ENDIF
-30 CONTINUE
-
-40 CONTINUE
-   IF (DOT_POS .GT. 0) THEN
+   do n = l, 1, -1
+      if (string(n:n) == '.') then
+         dot_pos = n
+         exit
+      end if
+   end do
+   if (dot_pos > 0) then
 !       Replace existing extension with new one
-      STRING = STRING(1:DOT_POS-1)//EXT
-      L = DOT_POS - 1 + EXTLEN
-   ELSE
+      string = string(1:dot_pos-1)//ext
+      l = dot_pos - 1 + extlen
+   else
 !       No extension, add the default one
-      STRING = STRING(1:L)//EXT
-      L = L + EXTLEN
-   ENDIF
+      string = string(1:l)//ext
+      l = l + extlen
+   end if
 
    RETURN
 END
