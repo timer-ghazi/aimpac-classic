@@ -469,184 +469,83 @@ SUBROUTINE GAUS_PSI_ONLY(XYZ,PTS,MM)
 !
 !       FOR S-TYPE
 !
-   DO 420 J = 1,ITP(1)
-      is=ict(j)
-      DO 422 I=1,PTS
-         CHI(I,J)=DEXP(-EXX(J)*R2(I,is))
-422   CONTINUE
-420 CONTINUE
+   CALL CALC_S_TYPE_PSI(1, ITP(1), PTS, DX, DY, DZ, R2, CHI)
 !
 !       FOR Px-TYPE
 !
-   DO 440 J=ITP(1)+1,ITP(2)
-      is=ict(j)
-      DO 442 I=1,PTS
-         CHI(I,J)=DX(I,is)*DEXP(-EXX(J)*R2(I,is))
-442   CONTINUE
-440 CONTINUE
+   CALL CALC_P_TYPE_PSI(ITP(1)+1, ITP(2), PTS, 'X', DX, DY, DZ, R2, CHI)
 !
 !       FOR Py-TYPE
 !
-   DO 460 J=ITP(2)+1,ITP(3)
-      is=ict(j)
-      DO 462 I=1,PTS
-!
-         CHI(I,J)=DY(I,is)*DEXP(-EXX(J)*R2(I,is))
-462   CONTINUE
-460 CONTINUE
+   CALL CALC_P_TYPE_PSI(ITP(2)+1, ITP(3), PTS, 'Y', DX, DY, DZ, R2, CHI)
 !
 !       FOR Pz-TYPE
 !
-   DO 480 J=ITP(3)+1,ITP(4)
-      is=ict(j)
-      DO 482 I=1,PTS
-         CHI(I,J)=DZ(I,is)*DEXP(-EXX(J)*R2(I,is))
-482   CONTINUE
-480 CONTINUE
+   CALL CALC_P_TYPE_PSI(ITP(3)+1, ITP(4), PTS, 'Z', DX, DY, DZ, R2, CHI)
 !
 !       FOR Dxx-TYPE
 !
-   DO 520 J=ITP(4)+1,ITP(5)
-      is=ict(j)
-      DO 522 I=1,PTS
-         CHI(I,J)=DX(I,is)*DX(I,is)*DEXP(-EXX(J)*R2(I,is))
-522   CONTINUE
-520 CONTINUE
+   CALL CALC_D_TYPE_PSI(ITP(4)+1, ITP(5), PTS, 'XX', DX, DY, DZ, R2, CHI)
 !
 !       FOR Dyy-TYPE
 !
-   DO 540 J=ITP(5)+1,ITP(6)
-      is=ict(j)
-      DO 542 I=1,PTS
-         CHI(I,J)=DY(I,is)*DY(I,is)*DEXP(-EXX(J)*R2(I,is))
-542   CONTINUE
-540 CONTINUE
+   CALL CALC_D_TYPE_PSI(ITP(5)+1, ITP(6), PTS, 'YY', DX, DY, DZ, R2, CHI)
 !
 !       FOR Dzz-TYPE
 !
-   DO 560 J=ITP(6)+1,ITP(7)
-      is=ict(j)
-      DO 562 I=1,PTS
-         CHI(I,J)=DZ(I,is)*DZ(I,is)*DEXP(-EXX(J)*R2(I,is))
-562   CONTINUE
-560 CONTINUE
+   CALL CALC_D_TYPE_PSI(ITP(6)+1, ITP(7), PTS, 'ZZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Dxy-TYPE
 !
-   DO 580 J=ITP(7)+1,ITP(8)
-      is=ict(j)
-      DO 582 I=1,PTS
-         CHI(I,J)=DX(I,is)*DY(I,is)*DEXP(-EXX(J)*R2(I,is))
-582   CONTINUE
-580 CONTINUE
+   CALL CALC_D_TYPE_PSI(ITP(7)+1, ITP(8), PTS, 'XY', DX, DY, DZ, R2, CHI)
 !
 !       FOR Dxz-TYPE
 !
-   DO 620 J=ITP(8)+1,ITP(9)
-      is=ict(j)
-      DO 622 I=1,PTS
-         CHI(I,J)=DX(I,is)*DZ(I,is)*DEXP(-EXX(J)*R2(I,is))
-622   CONTINUE
-620 CONTINUE
+   CALL CALC_D_TYPE_PSI(ITP(8)+1, ITP(9), PTS, 'XZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Dyz-TYPE
 !
-   DO 640 J=ITP(9)+1,ITP(10)
-      is=ict(j)
-      DO 642 I=1,PTS
-         CHI(I,J)=DY(I,is)*DZ(I,is)*DEXP(-EXX(J)*R2(I,is))
-642   CONTINUE
-640 CONTINUE
+   CALL CALC_D_TYPE_PSI(ITP(9)+1, ITP(10), PTS, 'YZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fxxx-TYPE
 !
-   DO 503 J=ITP(10)+1,ITP(11)
-      is=ict(j)
-      DO 504 I=1,PTS
-         CHI(I,J)=DEXP(-EXX(J)*R2(I,is))*DX(I,is)**3
-504   CONTINUE
-503 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(10)+1, ITP(11), PTS, 'XXX', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fyyy-TYPE
 !
-   DO 513 J=ITP(11)+1,ITP(12)
-      is=ict(j)
-      DO 514 I=1,PTS
-         CHI(I,J)=DEXP(-EXX(J)*R2(I,is))*DY(I,is)**3
-514   CONTINUE
-513 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(11)+1, ITP(12), PTS, 'YYY', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fzzz-TYPE
 !
-   DO 524 J=ITP(12)+1,ITP(13)
-      is=ict(j)
-      DO 525 I=1,PTS
-         CHI(I,J)=DEXP(-EXX(J)*R2(I,is))*DZ(I,is)**3
-525   CONTINUE
-524 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(12)+1, ITP(13), PTS, 'ZZZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fxxy-TYPE
 !
-   DO 533 J=ITP(13)+1,ITP(14)
-      is=ict(j)
-      DO 534 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DY(I,is)*DX(I,is)**2
-534   CONTINUE
-533 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(13)+1, ITP(14), PTS, 'XXY', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fxxz-TYPE
 !
-   DO 544 J=ITP(14)+1,ITP(15)
-      is=ict(j)
-      DO 545 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DZ(I,is)*DX(I,is)**2
-545   CONTINUE
-544 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(14)+1, ITP(15), PTS, 'XXZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fxyy-TYPE
 !
-   DO 553 J=ITP(16)+1,ITP(17)
-      is=ict(j)
-      DO 554 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DX(I,is)*DY(I,is)**2
-554   CONTINUE
-553 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(16)+1, ITP(17), PTS, 'XYY', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fyyz-TYPE
 !
-   DO 564 J=ITP(15)+1,ITP(16)
-      is=ict(j)
-      DO 565 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DZ(I,is)*DY(I,is)**2
-565   CONTINUE
-564 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(15)+1, ITP(16), PTS, 'YYZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fxzz-TYPE
 !
-   DO 573 J=ITP(17)+1,ITP(18)
-      is=ict(j)
-      DO 574 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DX(I,is)*DZ(I,is)**2
-574   CONTINUE
-573 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(17)+1, ITP(18), PTS, 'XZZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fyzz-TYPE
 !
-   DO 584 J=ITP(18)+1,ITP(19)
-      is=ict(j)
-      DO 585 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DY(I,is)*DZ(I,is)**2
-585   CONTINUE
-584 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(18)+1, ITP(19), PTS, 'YZZ', DX, DY, DZ, R2, CHI)
 !
 !       FOR Fxyz-TYPE
 !
-   DO 593 J=ITP(19)+1,ITP(20)
-      is=ict(j)
-      DO 594 I=1,PTS
-         CHI(I,J)=Dexp(-Exx(j)*r2(I,is))*DX(I,is)*DY(I,is)*DZ(I,is)
-594   CONTINUE
-593 CONTINUE
+   CALL CALC_F_TYPE_PSI(ITP(19)+1, ITP(20), PTS, 'XYZ', DX, DY, DZ, R2, CHI)
 !
    DO 603 J=1,Nprims
       temp=zero
@@ -675,3 +574,165 @@ SUBROUTINE GAUS_PSI_ONLY(XYZ,PTS,MM)
 !
    RETURN
 END
+
+!
+! Helper subroutines for GAUS_PSI_ONLY orbital calculations
+!
+
+SUBROUTINE CALC_S_TYPE_PSI(J_START, J_END, PTS, DX, DY, DZ, R2, CHI)
+!
+! Calculate S-type orbital values (no angular part)
+!
+   USE molecular_data
+   USE basis_data
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: J_START, J_END, PTS
+   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
+   real(8), intent(in) :: R2(2000,200)
+   real(8), intent(inout) :: CHI(2000,2000)
+   
+   ! Local variables
+   integer :: I, J, IS
+   
+   DO J = J_START, J_END
+      IS = ICT(J)
+      DO I = 1, PTS
+         CHI(I,J) = DEXP(-EXX(J)*R2(I,IS))
+      END DO
+   END DO
+   
+   RETURN
+END SUBROUTINE CALC_S_TYPE_PSI
+
+SUBROUTINE CALC_P_TYPE_PSI(J_START, J_END, PTS, COORD_TYPE, DX, DY, DZ, R2, CHI)
+!
+! Calculate P-type orbital values (linear in coordinates)
+!
+   USE molecular_data
+   USE basis_data
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: J_START, J_END, PTS
+   character(len=1), intent(in) :: COORD_TYPE
+   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
+   real(8), intent(in) :: R2(2000,200)
+   real(8), intent(inout) :: CHI(2000,2000)
+   
+   ! Local variables
+   integer :: I, J, IS
+   real(8) :: COORD_VAL
+   
+   DO J = J_START, J_END
+      IS = ICT(J)
+      DO I = 1, PTS
+         SELECT CASE(COORD_TYPE)
+            CASE('X')
+               COORD_VAL = DX(I,IS)
+            CASE('Y')
+               COORD_VAL = DY(I,IS)
+            CASE('Z')
+               COORD_VAL = DZ(I,IS)
+         END SELECT
+         CHI(I,J) = COORD_VAL * DEXP(-EXX(J)*R2(I,IS))
+      END DO
+   END DO
+   
+   RETURN
+END SUBROUTINE CALC_P_TYPE_PSI
+
+SUBROUTINE CALC_D_TYPE_PSI(J_START, J_END, PTS, D_TYPE, DX, DY, DZ, R2, CHI)
+!
+! Calculate D-type orbital values (quadratic in coordinates)
+!
+   USE molecular_data
+   USE basis_data
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: J_START, J_END, PTS
+   character(len=2), intent(in) :: D_TYPE
+   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
+   real(8), intent(in) :: R2(2000,200)
+   real(8), intent(inout) :: CHI(2000,2000)
+   
+   ! Local variables
+   integer :: I, J, IS
+   real(8) :: COORD_PROD
+   
+   DO J = J_START, J_END
+      IS = ICT(J)
+      DO I = 1, PTS
+         SELECT CASE(D_TYPE)
+            CASE('XX')
+               COORD_PROD = DX(I,IS) * DX(I,IS)
+            CASE('YY')
+               COORD_PROD = DY(I,IS) * DY(I,IS)
+            CASE('ZZ')
+               COORD_PROD = DZ(I,IS) * DZ(I,IS)
+            CASE('XY')
+               COORD_PROD = DX(I,IS) * DY(I,IS)
+            CASE('XZ')
+               COORD_PROD = DX(I,IS) * DZ(I,IS)
+            CASE('YZ')
+               COORD_PROD = DY(I,IS) * DZ(I,IS)
+         END SELECT
+         CHI(I,J) = COORD_PROD * DEXP(-EXX(J)*R2(I,IS))
+      END DO
+   END DO
+   
+   RETURN
+END SUBROUTINE CALC_D_TYPE_PSI
+
+SUBROUTINE CALC_F_TYPE_PSI(J_START, J_END, PTS, F_TYPE, DX, DY, DZ, R2, CHI)
+!
+! Calculate F-type orbital values (cubic in coordinates)
+!
+   USE molecular_data
+   USE basis_data
+   implicit none
+   
+   ! Arguments
+   integer, intent(in) :: J_START, J_END, PTS
+   character(len=3), intent(in) :: F_TYPE
+   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
+   real(8), intent(in) :: R2(2000,200)
+   real(8), intent(inout) :: CHI(2000,2000)
+   
+   ! Local variables
+   integer :: I, J, IS
+   real(8) :: COORD_PROD
+   
+   DO J = J_START, J_END
+      IS = ICT(J)
+      DO I = 1, PTS
+         SELECT CASE(F_TYPE)
+            CASE('XXX')
+               COORD_PROD = DX(I,IS)**3
+            CASE('YYY')
+               COORD_PROD = DY(I,IS)**3
+            CASE('ZZZ')
+               COORD_PROD = DZ(I,IS)**3
+            CASE('XXY')
+               COORD_PROD = DX(I,IS)**2 * DY(I,IS)
+            CASE('XXZ')
+               COORD_PROD = DX(I,IS)**2 * DZ(I,IS)
+            CASE('YYZ')
+               COORD_PROD = DY(I,IS)**2 * DZ(I,IS)
+            CASE('XYY')
+               COORD_PROD = DX(I,IS) * DY(I,IS)**2
+            CASE('XZZ')
+               COORD_PROD = DX(I,IS) * DZ(I,IS)**2
+            CASE('YZZ')
+               COORD_PROD = DY(I,IS) * DZ(I,IS)**2
+            CASE('XYZ')
+               COORD_PROD = DX(I,IS) * DY(I,IS) * DZ(I,IS)
+         END SELECT
+         CHI(I,J) = COORD_PROD * DEXP(-EXX(J)*R2(I,IS))
+      END DO
+   END DO
+   
+   RETURN
+END SUBROUTINE CALC_F_TYPE_PSI
