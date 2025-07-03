@@ -1,0 +1,24 @@
+# Example mapping file for splitting gridv.f90
+# Format: 
+# output_filename.f90:
+# - SUBROUTINE_NAME
+# - FUNCTION_NAME
+
+gridv_io.f90:
+- RDPSI
+- MAKNAME
+- MAKNAME_DIRECT
+- NUMBER
+
+gridv_calculations.f90:
+- GAUS
+- GRDRHO
+- GRDD2R
+- GRDKEG
+
+gridv_utils.f90:
+- GROCKLE
+- EULER
+- TRACE
+- TREDIG
+- TQLGRM

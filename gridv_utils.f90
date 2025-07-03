@@ -30,49 +30,59 @@ INTEGER FUNCTION NUMBER  (LINE, LPST, NUM, DEC)
    MS      = 0
    NUMBER  = 0
    LPEND   = LEN (LINE)
-5  IF (LINE(LPST:LPST) .EQ. BLANK) THEN
-      LPST    = LPST + 1
-      IF (LPST .GT. LPEND) THEN
-         NUMBER  = 1
-         RETURN
-      END IF
-      GOTO 5
-   END IF
-   LBEFOR  = LPST
+   
+   ! Skip leading blanks
+   do while (LPST <= LPEND)
+      if (LINE(LPST:LPST) /= BLANK) exit
+      LPST = LPST + 1
+   end do
+   
+   if (LPST > LPEND) then
+      NUMBER = 1
+      return
+   end if
+   
+   LBEFOR = LPST
 
-   DO 1 I  = LBEFOR, LPEND
-      LPST    = I
-      L       = LINE(I:I)
-      IF (L .EQ. BLANK .OR. L .EQ. COMMA) THEN
-         GOTO 2
-      ELSE IF (L .EQ. MINUS) THEN
-         MS      = 1
-         GOTO 1
-      ELSE IF (L .EQ. DOT) THEN
-         NP      = 1
-         GOTO 1
-      END IF
-      DO 3 J  = 0, 9
-         IF (L .EQ. CTEN(J)) THEN
-            N       = J
-            GOTO 4
-         END IF
-3     CONTINUE
-      NUMBER  = 2
-      LPST    = LBEFOR
-      RETURN
+   do i = LBEFOR, LPEND
+      LPST = i
+      L = LINE(i:i)
+      if (L == BLANK .or. L == COMMA) then
+         exit
+      else if (L == MINUS) then
+         MS = 1
+         cycle
+      else if (L == DOT) then
+         NP = 1
+         cycle
+      end if
+      
+      ! Search for digit
+      do j = 0, 9
+         if (L == CTEN(j)) then
+            N = j
+            exit
+         end if
+      end do
+      
+      ! If no digit found, return error
+      if (j > 9) then
+         NUMBER = 2
+         LPST = LBEFOR
+         return
+      end if
+      
+      if (NP == 1) then
+         ND = ND + 1
+         DEC = DEC + DFLOAT(N)/TEN**ND
+      else
+         NUM = NUM*ITEN + N
+      end if
+   end do
 
-4     IF (NP .EQ. 1) THEN
-         ND      = ND + 1
-         DEC     = DEC + DFLOAT(N)/TEN**ND
-      ELSE
-         NUM     = NUM*ITEN + N
-      END IF
-1  CONTINUE
-
-2  DEC     = DFLOAT(NUM) + DEC
-   IF (MS .EQ. 0) RETURN
-   DEC     = -DEC
-   NUM     = -NUM
-   RETURN
+   DEC = DFLOAT(NUM) + DEC
+   if (MS == 0) return
+   DEC = -DEC
+   NUM = -NUM
+   return
 END

@@ -71,51 +71,51 @@ SUBROUTINE GROCKLE (N, X, IR, S, E)
 !    CENTROID OF FRAGMENT
 !
    M = 0
-   DO 100 I = 1, N
-      IF (IR(I) .GT. 0) THEN
-         C(1) = C(1) + X(1,IR(I))
-         C(2) = C(2) + X(2,IR(I))
-         C(3) = C(3) + X(3,IR(I))
-         M = M + 1
-      ELSE IF (IR(I) .LT. 0) THEN
-         C(1) = C(1) + S(1,-IR(I))
-         C(2) = C(2) + S(2,-IR(I))
-         C(3) = C(3) + S(3,-IR(I))
-         M = M + 1
-      END IF
-100 CONTINUE
+   do i = 1, n
+      if (ir(i) > 0) then
+         c(1) = c(1) + x(1,ir(i))
+         c(2) = c(2) + x(2,ir(i))
+         c(3) = c(3) + x(3,ir(i))
+         m = m + 1
+      else if (ir(i) < 0) then
+         c(1) = c(1) + s(1,-ir(i))
+         c(2) = c(2) + s(2,-ir(i))
+         c(3) = c(3) + s(3,-ir(i))
+         m = m + 1
+      end if
+   end do
 !
-   DD = One/DFLOAT(M)
-   C(1) = DD*C(1)
-   C(2) = DD*C(2)
-   C(3) = DD*C(3)
+   dd = one/dfloat(m)
+   c(1) = dd*c(1)
+   c(2) = dd*c(2)
+   c(3) = dd*c(3)
 !
 !    CALCULATE INERTIAL MATRIX.
 !
-   DO 200 I = 1, N
-      IF (IR(I) .GT. 0) THEN
-         X1 = X(1,IR(I)) - C(1)
-         X2 = X(2,IR(I)) - C(2)
-         X3 = X(3,IR(I)) - C(3)
-      ELSE IF (IR(I) .LT. 0) THEN
-         X1 = S(1,-IR(I)) - C(1)
-         X2 = S(2,-IR(I)) - C(2)
-         X3 = S(3,-IR(I)) - C(3)
-      END IF
-      E(1,1) = E(1,1) + X2**2 + X3**2
-      E(2,2) = E(2,2) + X1**2 + X3**2
-      E(3,3) = E(3,3) + X1**2 + X2**2
-      E(1,2) = E(1,2) - X1*X2
-      E(1,3) = E(1,3) - X1*X3
-      E(2,3) = E(2,3) - X2*X3
-      X1 = ZERO
-      X2 = ZERO
-      X3 = ZERO
-200 CONTINUE
+   do i = 1, n
+      if (ir(i) > 0) then
+         x1 = x(1,ir(i)) - c(1)
+         x2 = x(2,ir(i)) - c(2)
+         x3 = x(3,ir(i)) - c(3)
+      else if (ir(i) < 0) then
+         x1 = s(1,-ir(i)) - c(1)
+         x2 = s(2,-ir(i)) - c(2)
+         x3 = s(3,-ir(i)) - c(3)
+      end if
+      e(1,1) = e(1,1) + x2**2 + x3**2
+      e(2,2) = e(2,2) + x1**2 + x3**2
+      e(3,3) = e(3,3) + x1**2 + x2**2
+      e(1,2) = e(1,2) - x1*x2
+      e(1,3) = e(1,3) - x1*x3
+      e(2,3) = e(2,3) - x2*x3
+      x1 = zero
+      x2 = zero
+      x3 = zero
+   end do
 !
-   E(2,1) = E(1,2)
-   E(3,1) = E(1,3)
-   E(3,2) = E(2,3)
+   e(2,1) = e(1,2)
+   e(3,1) = e(1,3)
+   e(3,2) = e(2,3)
 !
 !    GENERATES EIGENVALUES AND EIGENVECTORS OF THE INERTIAL MATRIX.
 !
@@ -127,11 +127,11 @@ SUBROUTINE GROCKLE (N, X, IR, S, E)
    &E(1,2)*(E(3,1)*E(2,3) - E(2,1)*E(3,3)) +&
    &E(1,3)*(E(2,1)*E(3,2) - E(3,1)*E(2,2))
 !
-   IF (DET .LT. ZERO) THEN
-      E(1,2) = -E(1,2)
-      E(2,2) = -E(2,2)
-      E(3,2) = -E(3,2)
-   END IF
+   if (det < zero) then
+      e(1,2) = -e(1,2)
+      e(2,2) = -e(2,2)
+      e(3,2) = -e(3,2)
+   end if
 !
    RETURN
 END
