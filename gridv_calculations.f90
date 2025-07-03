@@ -8,6 +8,26 @@ SUBROUTINE GAUS(XYZ,PTS,MM)
    ! Arguments
    integer, intent(in) :: PTS, MM
    real(8), intent(in) :: XYZ(2000,3)
+!
+   ! Dispatcher: call appropriate subroutine based on MM
+   IF (MM .EQ. 1) THEN
+      CALL GAUS_PSI_ONLY(XYZ,PTS,MM)
+   ELSE
+      CALL GAUS_FULL(XYZ,PTS,MM)
+   ENDIF
+!
+   RETURN
+END
+SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
+!
+   USE molecular_data
+   USE basis_data
+   USE work_arrays
+   implicit none
+!
+   ! Arguments
+   integer, intent(in) :: PTS, MM
+   real(8), intent(in) :: XYZ(2000,3)
    
    ! Local variables
    real(8) :: DX(2000,200), DY(2000,200), DZ(2000,200)
@@ -22,8 +42,6 @@ SUBROUTINE GAUS(XYZ,PTS,MM)
    real(8) :: X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4, X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7
    real(8) :: XX, YY, ZZ, XY, XZ, YZ
    real(8) :: A, B, BXX, BXY, BXZ, BYY, BYZ, BZZ, CHECK, TEMP
-!
-   IF (MM .EQ. 1) GOTO 133
 !
    DO 110 J = 1,NCENT
       DO 112 I=1,PTS
@@ -430,9 +448,31 @@ SUBROUTINE GAUS(XYZ,PTS,MM)
 125   CONTINUE
 105 CONTINUE
 !
-   GOTO 999
+   RETURN
+END
+SUBROUTINE GAUS_PSI_ONLY(XYZ,PTS,MM)
 !
-133 CONTINUE
+   USE molecular_data
+   USE basis_data
+   USE work_arrays
+   implicit none
+!
+   ! Arguments
+   integer, intent(in) :: PTS, MM
+   real(8), intent(in) :: XYZ(2000,3)
+   
+   ! Local variables
+   real(8) :: DX(2000,200), DY(2000,200), DZ(2000,200)
+   real(8) :: R2(2000,200), CHI(2000,2000)
+   real(8) :: CHIMAX(2000)
+   real(8), save :: ZERO = 0.D0, ONE = 1.D0, TWO = 2.D0, FOUR = 4.D0, FIVE = 5.D0
+   real(8), save :: SEVEN = 7.D0, THREE = 3.D0, SIX = 6.D0, NINE = 9.D0, CUTOFF = 1.0d-10
+   integer :: I, J, K, L, IC, ITY, IK, ICL, IYYY, IZZZ, IXXY, IXXZ, IYYZ, IXYY, IXZZ, IYZZ, IXYZ
+   integer :: IS
+   real(8) :: EXP, GTMAX, EXPMAX, EXPMIN, R2MIN, R2MAX, RMS, R, R3, R4, R5, R6, R7, R8, R9, R10
+   real(8) :: X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4, X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7
+   real(8) :: XX, YY, ZZ, XY, XZ, YZ
+   real(8) :: A, B, BXX, BXY, BXZ, BYY, BYZ, BZZ, CHECK, TEMP
 !
    DO 410 J = 1,NCENT
       DO 412 I=1,PTS
@@ -649,9 +689,7 @@ SUBROUTINE GAUS(XYZ,PTS,MM)
 625   CONTINUE
 605 CONTINUE
 !
-   GOTO 999
-!
-999 RETURN
+   RETURN
 END
 SUBROUTINE GRDD2R (A,CX,XY)
 !
