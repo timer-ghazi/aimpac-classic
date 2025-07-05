@@ -1,6 +1,7 @@
 MODULE grid_data
    IMPLICIT NONE
-   INTEGER :: MPTS = 2000  ! Now a variable, not parameter
+   INTEGER :: MPTS  ! Now a variable, not parameter
+   INTEGER :: CURRENT_GRID_SIZE = 0  ! Track actual allocated grid size
    REAL, ALLOCATABLE :: GRD(:)
 END MODULE grid_data
 
@@ -40,9 +41,45 @@ END MODULE computation_data
 
 MODULE work_arrays
    IMPLICIT NONE
-   INTEGER, PARAMETER :: MPTS_WORK = 2000
-   INTEGER, PARAMETER :: MMO_WORK = 500
-   DOUBLE PRECISION :: PSI(MPTS_WORK,MMO_WORK), GX(MPTS_WORK,MMO_WORK)
-   DOUBLE PRECISION :: GY(MPTS_WORK,MMO_WORK), GZ(MPTS_WORK,MMO_WORK)
-   DOUBLE PRECISION :: D2(MPTS_WORK,MMO_WORK)
+   DOUBLE PRECISION, ALLOCATABLE :: PSI(:,:), GX(:,:), GY(:,:), GZ(:,:), D2(:,:)
+
+CONTAINS
+
+   SUBROUTINE allocate_work_arrays(npts, nmo)
+      INTEGER, INTENT(IN) :: npts, nmo
+      INTEGER :: stat
+      
+      ! Deallocate arrays if already allocated
+      IF (ALLOCATED(PSI)) DEALLOCATE(PSI)
+      IF (ALLOCATED(GX)) DEALLOCATE(GX)
+      IF (ALLOCATED(GY)) DEALLOCATE(GY)
+      IF (ALLOCATED(GZ)) DEALLOCATE(GZ)
+      IF (ALLOCATED(D2)) DEALLOCATE(D2)
+      
+      ! Allocate arrays with error checking
+      ALLOCATE(PSI(npts,nmo), STAT=stat)
+      IF (stat /= 0) STOP 'Error allocating PSI array'
+      
+      ALLOCATE(GX(npts,nmo), STAT=stat)
+      IF (stat /= 0) STOP 'Error allocating GX array'
+      
+      ALLOCATE(GY(npts,nmo), STAT=stat)
+      IF (stat /= 0) STOP 'Error allocating GY array'
+      
+      ALLOCATE(GZ(npts,nmo), STAT=stat)
+      IF (stat /= 0) STOP 'Error allocating GZ array'
+      
+      ALLOCATE(D2(npts,nmo), STAT=stat)
+      IF (stat /= 0) STOP 'Error allocating D2 array'
+   END SUBROUTINE allocate_work_arrays
+
+   SUBROUTINE cleanup_work_arrays()
+      ! Deallocate all work arrays
+      IF (ALLOCATED(PSI)) DEALLOCATE(PSI)
+      IF (ALLOCATED(GX)) DEALLOCATE(GX)
+      IF (ALLOCATED(GY)) DEALLOCATE(GY)
+      IF (ALLOCATED(GZ)) DEALLOCATE(GZ)
+      IF (ALLOCATED(D2)) DEALLOCATE(D2)
+   END SUBROUTINE cleanup_work_arrays
+
 END MODULE work_arrays

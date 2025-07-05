@@ -28,6 +28,10 @@ SUBROUTINE GRDD2R (A,CX,XY)
    YCNT = XCN
    ZCNT=ZEro
 !
+!    ALLOCATE WORK ARRAYS
+!
+   CALL allocate_work_arrays(IXSTP, NMO)
+!
    DO 1400 IY = 1,IYSTP
 !
 !    RESET X INCREMENT
@@ -67,6 +71,7 @@ SUBROUTINE GRDD2R (A,CX,XY)
 !
 1400 CONTINUE
 !
+   CALL cleanup_work_arrays()
    RETURN
 END
 
@@ -96,6 +101,10 @@ SUBROUTINE GRDKEG (A,CX,XY)
    ZCN = Zero
    YCNT = XCN
    ZCnt=Zero
+!
+!    ALLOCATE WORK ARRAYS
+!
+   CALL allocate_work_arrays(IXSTP, NMO)
 !
    DO 1400 IY = 1,IYSTP
 !
@@ -135,6 +144,7 @@ SUBROUTINE GRDKEG (A,CX,XY)
 !
 1400 CONTINUE
 !
+   CALL cleanup_work_arrays()
    RETURN
 END
 
@@ -164,6 +174,10 @@ SUBROUTINE GRDRHO (A,CX,XY)
    ZCN = Zero
    YCNT = XCN
    ZCnt=Zero
+!
+!    ALLOCATE WORK ARRAYS
+!
+   CALL allocate_work_arrays(IXSTP, NMO)
 !
    DO 1400 IY = 1,IYSTP
 !
@@ -203,6 +217,7 @@ SUBROUTINE GRDRHO (A,CX,XY)
 !
 1400 CONTINUE
 !
+   CALL cleanup_work_arrays()
    RETURN
 END
 
