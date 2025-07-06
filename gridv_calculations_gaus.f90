@@ -1,37 +1,37 @@
+! GAUS Calculation Routines - DOCUMENTATION ADDED FOR FUTURE MODERNIZATION
+! 
 ! Generated from gridv_calculations.f90
 ! Contains: GAUS_FULL, GAUS_PSI_ONLY
+!
+! NOTE: Converted to dynamic arrays with explicit dimension passing
+! Uses local_arrays module for scalable memory allocation
 
 SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
 !
    USE molecular_data
    USE basis_data
    USE work_arrays
+   USE local_arrays
    implicit none
 !
    ! Arguments
    integer, intent(in) :: PTS, MM
-   real(8), intent(in) :: XYZ(2000,3)
+   real(8), intent(in) :: XYZ(2000,3)  ! Keep input array as is
    
-   ! Local variables
-   real(8) :: DX(2000,200), DY(2000,200), DZ(2000,200)
-   real(8) :: R2(2000,200), CHI(2000,2000)
-   real(8) :: CHIX(2000,2000), CHIY(2000,2000), CHIZ(2000,2000)
-   real(8) :: CHID2(2000,2000), CHIMAX(2000)
+   ! Local variables - remove all array declarations, keep only scalars
    real(8), save :: ZERO = 0.D0, ONE = 1.D0, TWO = 2.D0, FOUR = 4.D0, FIVE = 5.D0
    real(8), save :: SEVEN = 7.D0, THREE = 3.D0, SIX = 6.D0, NINE = 9.D0, CUTOFF = 1.0d-10
-   integer :: I, J, K, L, IC, ITY, IK, ICL, IYYY, IZZZ, IXXY, IXXZ, IYYZ, IXYY, IXZZ, IYZZ, IXYZ
-   integer :: IS
-   real(8) :: EXP, GTMAX, EXPMAX, EXPMIN, R2MIN, R2MAX, RMS, R, R3, R4, R5, R6, R7, R8, R9, R10
-   real(8) :: X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4, X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7
-   real(8) :: XX, YY, ZZ, XY, XZ, YZ
+   integer :: I, J, K, L, IS
    real(8) :: A, B, BXX, BXY, BXZ, BYY, BYZ, BZZ, CHECK, TEMP
 !
+   ! Allocate local arrays for this calculation
+   CALL allocate_local_arrays(PTS, NCENT, NPRIMS)
    DO 110 J = 1,NCENT
       DO 112 I=1,PTS
-         DX(I,J) = XYZ(I,1) - XC(J)
-         DY(I,J) = XYZ(I,2) - YC(J)
-         DZ(I,J) = XYZ(I,3) - ZC(J)
-         R2(I,J)= DX(I,J)*DX(I,J)+DY(I,J)*DY(I,J)+DZ(I,J)*DZ(I,J)
+         DX_LOCAL(I,J) = XYZ(I,1) - XC(J)
+         DY_LOCAL(I,J) = XYZ(I,2) - YC(J)
+         DZ_LOCAL(I,J) = XYZ(I,3) - ZC(J)
+         R2_LOCAL(I,J)= DX_LOCAL(I,J)*DX_LOCAL(I,J)+DY_LOCAL(I,J)*DY_LOCAL(I,J)+DZ_LOCAL(I,J)*DZ_LOCAL(I,J)
 112   CONTINUE
 110 CONTINUE
 !
@@ -40,12 +40,12 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
    DO 120 J = 1,ITP(1)
       IS=ict(j)
       DO 122 I=1,PTS
-         A=SUM(J)*DEXP(-EXX(J)*R2(I,is))
-         CHI(I,J)=A*DIV(J)
-         CHIX(I,J)=DX(I,is)*A
-         CHIY(I,J)=DY(I,is)*A
-         CHIZ(I,J)=DZ(I,is)*A
-         CHID2(I,J)=(THREE+SUM(J)*R2(I,is))*A
+         A=SUM(J)*DEXP(-EXX(J)*R2_LOCAL(I,is))
+         CHI_LOCAL(I,J)=A*DIV(J)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*A
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*A
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*A
+         CHID2_LOCAL(I,J)=(THREE+SUM(J)*R2_LOCAL(I,is))*A
 122   CONTINUE
 120 CONTINUE
 !
@@ -55,14 +55,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 142 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DX(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DX_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=A*DX(I,is)
-         CHIX(I,J)=A+DX(I,is)*B
-         CHIY(I,J)=DY(I,is)*B
-         CHIZ(I,J)=DZ(I,is)*B
-         CHID2(I,J)=(FIVE+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=A*DX_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=A+DX_LOCAL(I,is)*B
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B
+         CHID2_LOCAL(I,J)=(FIVE+SUM(J)*R2_LOCAL(I,is))*B
 142   CONTINUE
 140 CONTINUE
 !
@@ -72,14 +72,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 162 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DY(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DY_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=A*DY(I,is)
-         CHIX(I,J)=DX(I,is)*B
-         CHIY(I,J)=A+DY(I,is)*B
-         CHIZ(I,J)=DZ(I,is)*B
-         CHID2(I,J)=(FIVE+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=A*DY_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B
+         CHIY_LOCAL(I,J)=A+DY_LOCAL(I,is)*B
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B
+         CHID2_LOCAL(I,J)=(FIVE+SUM(J)*R2_LOCAL(I,is))*B
 162   CONTINUE
 160 CONTINUE
 !
@@ -89,14 +89,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 182 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DZ(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DZ_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=A*DZ(I,is)
-         CHIX(I,J)=DX(I,is)*B
-         CHIY(I,J)=DY(I,is)*B
-         CHIZ(I,J)=A+DZ(I,is)*B
-         CHID2(I,J)=(FIVE+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=A*DZ_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B
+         CHIZ_LOCAL(I,J)=A+DZ_LOCAL(I,is)*B
+         CHID2_LOCAL(I,J)=(FIVE+SUM(J)*R2_LOCAL(I,is))*B
 182   CONTINUE
 180 CONTINUE
 !
@@ -106,14 +106,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 222 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DX(I,is)*DX(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DX_LOCAL(I,is)*DX_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=B*DIV(J)
-         CHIX(I,J)=(TWO*A+B)*DX(I,is)
-         CHIY(I,J)=DY(I,is)*B
-         CHIZ(I,J)=DZ(I,is)*B
-         CHID2(I,J)=TWO*A+(SEVEN+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=B*DIV(J)
+         CHIX_LOCAL(I,J)=(TWO*A+B)*DX_LOCAL(I,is)
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B
+         CHID2_LOCAL(I,J)=TWO*A+(SEVEN+SUM(J)*R2_LOCAL(I,is))*B
 222   CONTINUE
 220 CONTINUE
 !
@@ -123,14 +123,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 242 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DY(I,is)*DY(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DY_LOCAL(I,is)*DY_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=B*DIV(J)
-         CHIX(I,J)=DX(I,is)*B
-         CHIY(I,J)=(TWO*A+B)*DY(I,is)
-         CHIZ(I,J)=DZ(I,is)*B
-         CHID2(I,J)=TWO*A+(SEVEN+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=B*DIV(J)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B
+         CHIY_LOCAL(I,J)=(TWO*A+B)*DY_LOCAL(I,is)
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B
+         CHID2_LOCAL(I,J)=TWO*A+(SEVEN+SUM(J)*R2_LOCAL(I,is))*B
 242   CONTINUE
 240 CONTINUE
 !
@@ -140,14 +140,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 262 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DZ(I,is)*DZ(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DZ_LOCAL(I,is)*DZ_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=B*DIV(J)
-         CHIX(I,J)=DX(I,is)*B
-         CHIY(I,J)=DY(I,is)*B
-         CHIZ(I,J)=(TWO*A+B)*DZ(I,is)
-         CHID2(I,J)=TWO*A+(SEVEN+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=B*DIV(J)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B
+         CHIZ_LOCAL(I,J)=(TWO*A+B)*DZ_LOCAL(I,is)
+         CHID2_LOCAL(I,J)=TWO*A+(SEVEN+SUM(J)*R2_LOCAL(I,is))*B
 262   CONTINUE
 260 CONTINUE
 !
@@ -157,14 +157,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 282 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DX(I,is)*DY(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DX_LOCAL(I,is)*DY_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=B*DIV(J)
-         CHIX(I,J)=DX(I,is)*B+DY(I,is)*A
-         CHIY(I,J)=DY(I,is)*B+DX(I,is)*A
-         CHIZ(I,J)=DZ(I,is)*B
-         CHID2(I,J)=(SEVEN+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=B*DIV(J)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B+DY_LOCAL(I,is)*A
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B+DX_LOCAL(I,is)*A
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B
+         CHID2_LOCAL(I,J)=(SEVEN+SUM(J)*R2_LOCAL(I,is))*B
 282   CONTINUE
 280 CONTINUE
 !
@@ -174,14 +174,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 322 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DX(I,is)*DZ(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DX_LOCAL(I,is)*DZ_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=B*DIV(J)
-         CHIX(I,J)=DX(I,is)*B+DZ(I,is)*A
-         CHIY(I,J)=DY(I,is)*B
-         CHIZ(I,J)=DZ(I,is)*B+DX(I,is)*A
-         CHID2(I,J)=(SEVEN+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=B*DIV(J)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B+DZ_LOCAL(I,is)*A
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B+DX_LOCAL(I,is)*A
+         CHID2_LOCAL(I,J)=(SEVEN+SUM(J)*R2_LOCAL(I,is))*B
 322   CONTINUE
 320 CONTINUE
 !
@@ -191,14 +191,14 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 342 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DY(I,is)*DZ(I,is)*A*SUM(J)
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DY_LOCAL(I,is)*DZ_LOCAL(I,is)*A*SUM(J)
 !
-         CHI(I,J)=B*DIV(J)
-         CHIX(I,J)=DX(I,is)*B
-         CHIY(I,J)=DY(I,is)*B+DZ(I,is)*A
-         CHIZ(I,J)=DZ(I,is)*B+DY(I,is)*A
-         CHID2(I,J)=(SEVEN+SUM(J)*R2(I,is))*B
+         CHI_LOCAL(I,J)=B*DIV(J)
+         CHIX_LOCAL(I,J)=DX_LOCAL(I,is)*B
+         CHIY_LOCAL(I,J)=DY_LOCAL(I,is)*B+DZ_LOCAL(I,is)*A
+         CHIZ_LOCAL(I,J)=DZ_LOCAL(I,is)*B+DY_LOCAL(I,is)*A
+         CHID2_LOCAL(I,J)=(SEVEN+SUM(J)*R2_LOCAL(I,is))*B
 342   CONTINUE
 340 CONTINUE
 !
@@ -208,15 +208,15 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 502 I=1,PTS
 
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DX(I,is)*DX(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DX_LOCAL(I,is)*DX_LOCAL(I,is)*A
 !
-         CHI(I,J)=B*DX(I,is)
-         CHIX(I,J)=(THREE + SUM(J)*DX(I,is)*DX(I,is))*B
-         CHIY(I,J)=SUM(J)*DY(I,is)*CHI(I,J)
-         CHIZ(I,J)=SUM(J)*DZ(I,is)*CHI(I,J)
-         CHID2(I,J)=SIX*A*DX(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=B*DX_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=(THREE + SUM(J)*DX_LOCAL(I,is)*DX_LOCAL(I,is))*B
+         CHIY_LOCAL(I,J)=SUM(J)*DY_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIZ_LOCAL(I,J)=SUM(J)*DZ_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHID2_LOCAL(I,J)=SIX*A*DX_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 502   CONTINUE
 501 CONTINUE
 !
@@ -225,15 +225,15 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
    DO 511 J=ITP(11)+1,ITP(12)
       IS=ict(j)
       DO 512 I=1,PTS
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DY(I,is)*DY(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DY_LOCAL(I,is)*DY_LOCAL(I,is)*A
 !
-         CHI(I,J)=B*DY(I,is)
-         CHIX(I,J)=SUM(J)*DX(I,is)*CHI(I,J)
-         CHIY(I,J)=(THREE + SUM(J)*DY(I,is)*DY(I,is))*B
-         CHIZ(I,J)=SUM(J)*DZ(I,is)*CHI(I,J)
-         CHID2(I,J)=SIX*A*DY(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=B*DY_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=SUM(J)*DX_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIY_LOCAL(I,J)=(THREE + SUM(J)*DY_LOCAL(I,is)*DY_LOCAL(I,is))*B
+         CHIZ_LOCAL(I,J)=SUM(J)*DZ_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHID2_LOCAL(I,J)=SIX*A*DY_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 512   CONTINUE
 511 CONTINUE
@@ -244,15 +244,15 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 523 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         B=DZ(I,is)*DZ(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         B=DZ_LOCAL(I,is)*DZ_LOCAL(I,is)*A
 !
-         CHI(I,J)=B*DZ(I,is)
-         CHIX(I,J)=SUM(J)*DX(I,is)*CHI(I,J)
-         CHIY(I,J)=SUM(J)*DY(I,is)*CHI(I,J)
-         CHIZ(I,J)=(THREE + SUM(J)*DZ(I,is)*DZ(I,is))*B
-         CHID2(I,J)=SIX*A*DZ(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=B*DZ_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=SUM(J)*DX_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIY_LOCAL(I,J)=SUM(J)*DY_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIZ_LOCAL(I,J)=(THREE + SUM(J)*DZ_LOCAL(I,is)*DZ_LOCAL(I,is))*B
+         CHID2_LOCAL(I,J)=SIX*A*DZ_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 523   CONTINUE
 521 CONTINUE
@@ -263,16 +263,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 532 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BXY=DX(I,is)*DY(I,is)*A
-         BXX=DX(I,is)*DX(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BXY=DX_LOCAL(I,is)*DY_LOCAL(I,is)*A
+         BXX=DX_LOCAL(I,is)*DX_LOCAL(I,is)*A
 !
-         CHI(I,J)=BXY*DX(I,is)
-         CHIX(I,J)=(TWO + SUM(J)*DX(I,is)*DX(I,is))*BXY
-         CHIY(I,J)=(ONE + SUM(J)*DY(I,is)*DY(I,is))*BXX
-         CHIZ(I,J)=SUM(J)*DZ(I,is)*CHI(I,J)
-         CHID2(I,J)=TWO*A*DY(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=BXY*DX_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=(TWO + SUM(J)*DX_LOCAL(I,is)*DX_LOCAL(I,is))*BXY
+         CHIY_LOCAL(I,J)=(ONE + SUM(J)*DY_LOCAL(I,is)*DY_LOCAL(I,is))*BXX
+         CHIZ_LOCAL(I,J)=SUM(J)*DZ_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHID2_LOCAL(I,J)=TWO*A*DY_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 532   CONTINUE
 531 CONTINUE
@@ -283,16 +283,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 543 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BXZ=DX(I,is)*DZ(I,is)*A
-         BXX=DX(I,is)*DX(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BXZ=DX_LOCAL(I,is)*DZ_LOCAL(I,is)*A
+         BXX=DX_LOCAL(I,is)*DX_LOCAL(I,is)*A
 !
-         CHI(I,J)=BXZ*DX(I,is)
-         CHIX(I,J)=(TWO + SUM(J)*DX(I,is)*DX(I,is))*BXZ
-         CHIY(I,J)=SUM(J)*DY(I,is)*CHI(I,J)
-         CHIZ(I,J)=(ONE + SUM(J)*DZ(I,is)*DZ(I,is))*BXX
-         CHID2(I,J)=TWO*A*DZ(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=BXZ*DX_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=(TWO + SUM(J)*DX_LOCAL(I,is)*DX_LOCAL(I,is))*BXZ
+         CHIY_LOCAL(I,J)=SUM(J)*DY_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIZ_LOCAL(I,J)=(ONE + SUM(J)*DZ_LOCAL(I,is)*DZ_LOCAL(I,is))*BXX
+         CHID2_LOCAL(I,J)=TWO*A*DZ_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 543   CONTINUE
 541 CONTINUE
@@ -303,16 +303,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 563 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BYZ=DZ(I,is)*DY(I,is)*A
-         BYY=DY(I,is)*DY(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BYZ=DZ_LOCAL(I,is)*DY_LOCAL(I,is)*A
+         BYY=DY_LOCAL(I,is)*DY_LOCAL(I,is)*A
 !
-         CHI(I,J)=BYZ*DY(I,is)
-         CHIX(I,J)=SUM(J)*DX(I,is)*CHI(I,J)
-         CHIY(I,J)=(TWO + SUM(J)*DY(I,is)*DY(I,is))*BYZ
-         CHIZ(I,J)=(ONE + SUM(J)*DZ(I,is)*DZ(I,is))*BYY
-         CHID2(I,J)=TWO*A*DZ(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=BYZ*DY_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=SUM(J)*DX_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIY_LOCAL(I,J)=(TWO + SUM(J)*DY_LOCAL(I,is)*DY_LOCAL(I,is))*BYZ
+         CHIZ_LOCAL(I,J)=(ONE + SUM(J)*DZ_LOCAL(I,is)*DZ_LOCAL(I,is))*BYY
+         CHID2_LOCAL(I,J)=TWO*A*DZ_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 563   CONTINUE
 561 CONTINUE
@@ -323,16 +323,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 552 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BXY=DX(I,is)*DY(I,is)*A
-         BYY=DY(I,is)*DY(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BXY=DX_LOCAL(I,is)*DY_LOCAL(I,is)*A
+         BYY=DY_LOCAL(I,is)*DY_LOCAL(I,is)*A
 !
-         CHI(I,J)=BXY*DY(I,is)
-         CHIX(I,J)=(ONE + SUM(J)*DX(I,is)*DX(I,is))*BYY
-         CHIY(I,J)=(TWO + SUM(J)*DY(I,is)*DY(I,is))*BXY
-         CHIZ(I,J)=SUM(J)*DZ(I,is)*CHI(I,J)
-         CHID2(I,J)=TWO*A*DX(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=BXY*DY_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=(ONE + SUM(J)*DX_LOCAL(I,is)*DX_LOCAL(I,is))*BYY
+         CHIY_LOCAL(I,J)=(TWO + SUM(J)*DY_LOCAL(I,is)*DY_LOCAL(I,is))*BXY
+         CHIZ_LOCAL(I,J)=SUM(J)*DZ_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHID2_LOCAL(I,J)=TWO*A*DX_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 552   CONTINUE
 551 CONTINUE
@@ -343,16 +343,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 572 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BXZ=DZ(I,is)*DX(I,is)*A
-         BZZ=DZ(I,is)*DZ(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BXZ=DZ_LOCAL(I,is)*DX_LOCAL(I,is)*A
+         BZZ=DZ_LOCAL(I,is)*DZ_LOCAL(I,is)*A
 !
-         CHI(I,J)=BXZ*DZ(I,is)
-         CHIX(I,J)=(ONE + SUM(J)*DX(I,is)*DX(I,is))*BZZ
-         CHIY(I,J)=SUM(J)*DY(I,is)*CHI(I,J)
-         CHIZ(I,J)=(TWO + SUM(J)*DZ(I,is)*DZ(I,is))*BXZ
-         CHID2(I,J)=TWO*A*DX(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=BXZ*DZ_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=(ONE + SUM(J)*DX_LOCAL(I,is)*DX_LOCAL(I,is))*BZZ
+         CHIY_LOCAL(I,J)=SUM(J)*DY_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIZ_LOCAL(I,J)=(TWO + SUM(J)*DZ_LOCAL(I,is)*DZ_LOCAL(I,is))*BXZ
+         CHID2_LOCAL(I,J)=TWO*A*DX_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 572   CONTINUE
 571 CONTINUE
@@ -363,16 +363,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 583 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BYZ=DZ(I,is)*DY(I,is)*A
-         BZZ=DZ(I,is)*DZ(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BYZ=DZ_LOCAL(I,is)*DY_LOCAL(I,is)*A
+         BZZ=DZ_LOCAL(I,is)*DZ_LOCAL(I,is)*A
 !
-         CHI(I,J)=BYZ*DZ(I,is)
-         CHIX(I,J)=SUM(J)*DX(I,is)*CHI(I,J)
-         CHIY(I,J)=(ONE + SUM(J)*DY(I,is)*DY(I,is))*BZZ
-         CHIZ(I,J)=(TWO + SUM(J)*DZ(I,is)*DZ(I,is))*BYZ
-         CHID2(I,J)=TWO*A*DY(I,is)+&
-         &(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=BYZ*DZ_LOCAL(I,is)
+         CHIX_LOCAL(I,J)=SUM(J)*DX_LOCAL(I,is)*CHI_LOCAL(I,J)
+         CHIY_LOCAL(I,J)=(ONE + SUM(J)*DY_LOCAL(I,is)*DY_LOCAL(I,is))*BZZ
+         CHIZ_LOCAL(I,J)=(TWO + SUM(J)*DZ_LOCAL(I,is)*DZ_LOCAL(I,is))*BYZ
+         CHID2_LOCAL(I,J)=TWO*A*DY_LOCAL(I,is)+&
+         &(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 583   CONTINUE
 581 CONTINUE
@@ -383,16 +383,16 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
       IS=ict(j)
       DO 592 I=1,PTS
 !
-         A=DEXP(-EXX(J)*R2(I,is))
-         BXY=DX(I,is)*DY(I,is)*A
-         BYZ=DZ(I,is)*DY(I,is)*A
-         BXZ=DX(I,is)*DZ(I,is)*A
+         A=DEXP(-EXX(J)*R2_LOCAL(I,is))
+         BXY=DX_LOCAL(I,is)*DY_LOCAL(I,is)*A
+         BYZ=DZ_LOCAL(I,is)*DY_LOCAL(I,is)*A
+         BXZ=DX_LOCAL(I,is)*DZ_LOCAL(I,is)*A
 !
-         CHI(I,J)=DX(I,is)*BYZ
-         CHIX(I,J)=(ONE + SUM(J)*DX(I,is)*DX(I,is))*BYZ
-         CHIY(I,J)=(ONE + SUM(J)*DY(I,is)*DY(I,is))*BXZ
-         CHIZ(I,J)=(ONE + SUM(J)*DZ(I,is)*DZ(I,is))*BXY
-         CHID2(I,J)=(NINE+SUM(J)*R2(I,is))*CHI(I,J)*SUM(J)
+         CHI_LOCAL(I,J)=DX_LOCAL(I,is)*BYZ
+         CHIX_LOCAL(I,J)=(ONE + SUM(J)*DX_LOCAL(I,is)*DX_LOCAL(I,is))*BYZ
+         CHIY_LOCAL(I,J)=(ONE + SUM(J)*DY_LOCAL(I,is)*DY_LOCAL(I,is))*BXZ
+         CHIZ_LOCAL(I,J)=(ONE + SUM(J)*DZ_LOCAL(I,is)*DZ_LOCAL(I,is))*BXY
+         CHID2_LOCAL(I,J)=(NINE+SUM(J)*R2_LOCAL(I,is))*CHI_LOCAL(I,J)*SUM(J)
 !
 592   CONTINUE
 591 CONTINUE
@@ -400,11 +400,11 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
    DO 103 J=1,Nprims
       temp=zero
       DO 104 I=1,PTs
-         check=DMax1(Dabs(CHi(I,J)),Dabs(CHiX(I,j)),Dabs(CHIY(I,J)),&
-         &Dabs(CHIZ(I,j)),Dabs(CHID2(I,J)),Temp)
+         check=DMax1(Dabs(CHI_LOCAL(I,J)),Dabs(CHIX_LOCAL(I,j)),Dabs(CHIY_LOCAL(I,J)),&
+         &Dabs(CHIZ_LOCAL(I,j)),Dabs(CHID2_LOCAL(I,J)),Temp)
          If(Check.gt.temp)temp=check
 104   Continue
-      chimax(j)=temp
+      chimax_local(j)=temp
 103 Continue
 !
    DO 105 L = 1,NMO
@@ -417,20 +417,23 @@ SUBROUTINE GAUS_FULL(XYZ,PTS,MM)
 107   CONTINUE
 !
       DO 125 J = 1,NPRIMS
-         check=dabs(chimax(j)*coo(J,L))
+         check=dabs(chimax_local(j)*coo(J,L))
          IF(check.gt.cutoff)THEN
             TEMP=COO(J,L)
             DO 126 I = 1,PTS
-               PSI(I,L) = PSI(I,L) + TEMP*CHI(I,J)
-               GX(I,L) = GX(I,L) + TEMP*CHIX(I,J)
-               GY(I,L) = GY(I,L) + TEMP*CHIY(I,J)
-               GZ(I,L) = GZ(I,L) + TEMP*CHIZ(I,J)
-               D2(I,L) = D2(I,L) + TEMP*CHID2(I,J)
+               PSI(I,L) = PSI(I,L) + TEMP*CHI_LOCAL(I,J)
+               GX(I,L) = GX(I,L) + TEMP*CHIX_LOCAL(I,J)
+               GY(I,L) = GY(I,L) + TEMP*CHIY_LOCAL(I,J)
+               GZ(I,L) = GZ(I,L) + TEMP*CHIZ_LOCAL(I,J)
+               D2(I,L) = D2(I,L) + TEMP*CHID2_LOCAL(I,J)
 126         CONTINUE
          ENDIF
 125   CONTINUE
 105 CONTINUE
 !
+   ! Cleanup local arrays
+   CALL cleanup_local_arrays()
+   
    RETURN
 END
 
@@ -439,121 +442,137 @@ SUBROUTINE GAUS_PSI_ONLY(XYZ,PTS,MM)
    USE molecular_data
    USE basis_data
    USE work_arrays
+   USE local_arrays
    implicit none
 !
    ! Arguments
    integer, intent(in) :: PTS, MM
-   real(8), intent(in) :: XYZ(2000,3)
+   real(8), intent(in) :: XYZ(2000,3)  ! Keep input array as is
    
-   ! Local variables
-   real(8) :: DX(2000,200), DY(2000,200), DZ(2000,200)
-   real(8) :: R2(2000,200), CHI(2000,2000)
-   real(8) :: CHIMAX(2000)
+   ! Local variables - remove all array declarations, keep only scalars
    real(8), save :: ZERO = 0.D0, ONE = 1.D0, TWO = 2.D0, FOUR = 4.D0, FIVE = 5.D0
    real(8), save :: SEVEN = 7.D0, THREE = 3.D0, SIX = 6.D0, NINE = 9.D0, CUTOFF = 1.0d-10
-   integer :: I, J, K, L, IC, ITY, IK, ICL, IYYY, IZZZ, IXXY, IXXZ, IYYZ, IXYY, IXZZ, IYZZ, IXYZ
-   integer :: IS
-   real(8) :: EXP, GTMAX, EXPMAX, EXPMIN, R2MIN, R2MAX, RMS, R, R3, R4, R5, R6, R7, R8, R9, R10
-   real(8) :: X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4, X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7
-   real(8) :: XX, YY, ZZ, XY, XZ, YZ
+   integer :: I, J, K, L, IS
    real(8) :: A, B, BXX, BXY, BXZ, BYY, BYZ, BZZ, CHECK, TEMP
 !
+   ! Allocate local arrays for this calculation  
+   CALL allocate_local_arrays(PTS, NCENT, NPRIMS)  
    DO 410 J = 1,NCENT
       DO 412 I=1,PTS
-         DX(I,J) = XYZ(I,1) - XC(J)
-         DY(I,J) = XYZ(I,2) - YC(J)
-         DZ(I,J) = XYZ(I,3) - ZC(J)
-         R2(I,J)= DX(I,J)*DX(I,J)+DY(I,J)*DY(I,J)+DZ(I,J)*DZ(I,J)
+         DX_LOCAL(I,J) = XYZ(I,1) - XC(J)
+         DY_LOCAL(I,J) = XYZ(I,2) - YC(J)
+         DZ_LOCAL(I,J) = XYZ(I,3) - ZC(J)
+         R2_LOCAL(I,J)= DX_LOCAL(I,J)*DX_LOCAL(I,J)+DY_LOCAL(I,J)*DY_LOCAL(I,J)+DZ_LOCAL(I,J)*DZ_LOCAL(I,J)
 412   CONTINUE
 410 CONTINUE
 !
 !       FOR S-TYPE
 !
-   CALL CALC_S_TYPE_PSI(1, ITP(1), PTS, DX, DY, DZ, R2, CHI)
+   CALL CALC_S_TYPE_PSI(1, ITP(1), PTS, PTS, NCENT, NPRIMS, &
+                         DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Px-TYPE
 !
-   CALL CALC_P_TYPE_PSI(ITP(1)+1, ITP(2), PTS, 'X', DX, DY, DZ, R2, CHI)
+   CALL CALC_P_TYPE_PSI(ITP(1)+1, ITP(2), PTS, PTS, NCENT, NPRIMS, &
+                         'X', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Py-TYPE
 !
-   CALL CALC_P_TYPE_PSI(ITP(2)+1, ITP(3), PTS, 'Y', DX, DY, DZ, R2, CHI)
+   CALL CALC_P_TYPE_PSI(ITP(2)+1, ITP(3), PTS, PTS, NCENT, NPRIMS, &
+                         'Y', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Pz-TYPE
 !
-   CALL CALC_P_TYPE_PSI(ITP(3)+1, ITP(4), PTS, 'Z', DX, DY, DZ, R2, CHI)
+   CALL CALC_P_TYPE_PSI(ITP(3)+1, ITP(4), PTS, PTS, NCENT, NPRIMS, &
+                         'Z', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Dxx-TYPE
 !
-   CALL CALC_D_TYPE_PSI(ITP(4)+1, ITP(5), PTS, 'XX', DX, DY, DZ, R2, CHI)
+   CALL CALC_D_TYPE_PSI(ITP(4)+1, ITP(5), PTS, PTS, NCENT, NPRIMS, &
+                         'XX', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Dyy-TYPE
 !
-   CALL CALC_D_TYPE_PSI(ITP(5)+1, ITP(6), PTS, 'YY', DX, DY, DZ, R2, CHI)
+   CALL CALC_D_TYPE_PSI(ITP(5)+1, ITP(6), PTS, PTS, NCENT, NPRIMS, &
+                         'YY', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Dzz-TYPE
 !
-   CALL CALC_D_TYPE_PSI(ITP(6)+1, ITP(7), PTS, 'ZZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_D_TYPE_PSI(ITP(6)+1, ITP(7), PTS, PTS, NCENT, NPRIMS, &
+                         'ZZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Dxy-TYPE
 !
-   CALL CALC_D_TYPE_PSI(ITP(7)+1, ITP(8), PTS, 'XY', DX, DY, DZ, R2, CHI)
+   CALL CALC_D_TYPE_PSI(ITP(7)+1, ITP(8), PTS, PTS, NCENT, NPRIMS, &
+                         'XY', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Dxz-TYPE
 !
-   CALL CALC_D_TYPE_PSI(ITP(8)+1, ITP(9), PTS, 'XZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_D_TYPE_PSI(ITP(8)+1, ITP(9), PTS, PTS, NCENT, NPRIMS, &
+                         'XZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Dyz-TYPE
 !
-   CALL CALC_D_TYPE_PSI(ITP(9)+1, ITP(10), PTS, 'YZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_D_TYPE_PSI(ITP(9)+1, ITP(10), PTS, PTS, NCENT, NPRIMS, &
+                         'YZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fxxx-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(10)+1, ITP(11), PTS, 'XXX', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(10)+1, ITP(11), PTS, PTS, NCENT, NPRIMS, &
+                         'XXX', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fyyy-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(11)+1, ITP(12), PTS, 'YYY', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(11)+1, ITP(12), PTS, PTS, NCENT, NPRIMS, &
+                         'YYY', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fzzz-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(12)+1, ITP(13), PTS, 'ZZZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(12)+1, ITP(13), PTS, PTS, NCENT, NPRIMS, &
+                         'ZZZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fxxy-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(13)+1, ITP(14), PTS, 'XXY', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(13)+1, ITP(14), PTS, PTS, NCENT, NPRIMS, &
+                         'XXY', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fxxz-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(14)+1, ITP(15), PTS, 'XXZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(14)+1, ITP(15), PTS, PTS, NCENT, NPRIMS, &
+                         'XXZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fxyy-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(16)+1, ITP(17), PTS, 'XYY', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(16)+1, ITP(17), PTS, PTS, NCENT, NPRIMS, &
+                         'XYY', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fyyz-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(15)+1, ITP(16), PTS, 'YYZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(15)+1, ITP(16), PTS, PTS, NCENT, NPRIMS, &
+                         'YYZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fxzz-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(17)+1, ITP(18), PTS, 'XZZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(17)+1, ITP(18), PTS, PTS, NCENT, NPRIMS, &
+                         'XZZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fyzz-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(18)+1, ITP(19), PTS, 'YZZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(18)+1, ITP(19), PTS, PTS, NCENT, NPRIMS, &
+                         'YZZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
 !       FOR Fxyz-TYPE
 !
-   CALL CALC_F_TYPE_PSI(ITP(19)+1, ITP(20), PTS, 'XYZ', DX, DY, DZ, R2, CHI)
+   CALL CALC_F_TYPE_PSI(ITP(19)+1, ITP(20), PTS, PTS, NCENT, NPRIMS, &
+                         'XYZ', DX_LOCAL, DY_LOCAL, DZ_LOCAL, R2_LOCAL, CHI_LOCAL)
 !
    DO 603 J=1,Nprims
       temp=zero
       DO 604 I=1,PTs
-         check=DMax1(Dabs(CHi(I,J)),Temp)
+         check=DMax1(Dabs(CHI_LOCAL(I,J)),Temp)
          If(Check.gt.temp)temp=check
 604   Continue
-      chimax(j)=temp
+      chimax_local(j)=temp
 603 Continue
 !
    DO 605 L = 1,NMO
@@ -562,16 +581,19 @@ SUBROUTINE GAUS_PSI_ONLY(XYZ,PTS,MM)
 607   CONTINUE
 !
       DO 625 J = 1,NPRIMS
-         check=dabs(chimax(j)*coo(J,L))
+         check=dabs(chimax_local(j)*coo(J,L))
          IF(check.gt.cutoff)THEN
             TEMP=COO(J,L)
             DO 626 I = 1,PTS
-               PSI(I,L) = PSI(I,L) + TEMP*CHI(I,J)
+               PSI(I,L) = PSI(I,L) + TEMP*CHI_LOCAL(I,J)
 626         CONTINUE
          ENDIF
 625   CONTINUE
 605 CONTINUE
 !
+   ! Cleanup local arrays
+   CALL cleanup_local_arrays()
+   
    RETURN
 END
 
@@ -579,7 +601,8 @@ END
 ! Helper subroutines for GAUS_PSI_ONLY orbital calculations
 !
 
-SUBROUTINE CALC_S_TYPE_PSI(J_START, J_END, PTS, DX, DY, DZ, R2, CHI)
+SUBROUTINE CALC_S_TYPE_PSI(J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS, &
+                           DX, DY, DZ, R2, CHI)
 !
 ! Calculate S-type orbital values (no angular part)
 !
@@ -588,10 +611,10 @@ SUBROUTINE CALC_S_TYPE_PSI(J_START, J_END, PTS, DX, DY, DZ, R2, CHI)
    implicit none
    
    ! Arguments
-   integer, intent(in) :: J_START, J_END, PTS
-   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
-   real(8), intent(in) :: R2(2000,200)
-   real(8), intent(inout) :: CHI(2000,2000)
+   integer, intent(in) :: J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS
+   real(8), intent(in) :: DX(MAXPTS,MAXCENT), DY(MAXPTS,MAXCENT), DZ(MAXPTS,MAXCENT)
+   real(8), intent(in) :: R2(MAXPTS,MAXCENT)
+   real(8), intent(inout) :: CHI(MAXPTS,MAXPRIMS)
    
    ! Local variables
    integer :: I, J, IS
@@ -606,7 +629,8 @@ SUBROUTINE CALC_S_TYPE_PSI(J_START, J_END, PTS, DX, DY, DZ, R2, CHI)
    RETURN
 END SUBROUTINE CALC_S_TYPE_PSI
 
-SUBROUTINE CALC_P_TYPE_PSI(J_START, J_END, PTS, COORD_TYPE, DX, DY, DZ, R2, CHI)
+SUBROUTINE CALC_P_TYPE_PSI(J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS, &
+                           COORD_TYPE, DX, DY, DZ, R2, CHI)
 !
 ! Calculate P-type orbital values (linear in coordinates)
 !
@@ -615,11 +639,11 @@ SUBROUTINE CALC_P_TYPE_PSI(J_START, J_END, PTS, COORD_TYPE, DX, DY, DZ, R2, CHI)
    implicit none
    
    ! Arguments
-   integer, intent(in) :: J_START, J_END, PTS
+   integer, intent(in) :: J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS
    character(len=1), intent(in) :: COORD_TYPE
-   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
-   real(8), intent(in) :: R2(2000,200)
-   real(8), intent(inout) :: CHI(2000,2000)
+   real(8), intent(in) :: DX(MAXPTS,MAXCENT), DY(MAXPTS,MAXCENT), DZ(MAXPTS,MAXCENT)
+   real(8), intent(in) :: R2(MAXPTS,MAXCENT)
+   real(8), intent(inout) :: CHI(MAXPTS,MAXPRIMS)
    
    ! Local variables
    integer :: I, J, IS
@@ -643,7 +667,8 @@ SUBROUTINE CALC_P_TYPE_PSI(J_START, J_END, PTS, COORD_TYPE, DX, DY, DZ, R2, CHI)
    RETURN
 END SUBROUTINE CALC_P_TYPE_PSI
 
-SUBROUTINE CALC_D_TYPE_PSI(J_START, J_END, PTS, D_TYPE, DX, DY, DZ, R2, CHI)
+SUBROUTINE CALC_D_TYPE_PSI(J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS, &
+                           D_TYPE, DX, DY, DZ, R2, CHI)
 !
 ! Calculate D-type orbital values (quadratic in coordinates)
 !
@@ -652,11 +677,11 @@ SUBROUTINE CALC_D_TYPE_PSI(J_START, J_END, PTS, D_TYPE, DX, DY, DZ, R2, CHI)
    implicit none
    
    ! Arguments
-   integer, intent(in) :: J_START, J_END, PTS
+   integer, intent(in) :: J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS
    character(len=2), intent(in) :: D_TYPE
-   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
-   real(8), intent(in) :: R2(2000,200)
-   real(8), intent(inout) :: CHI(2000,2000)
+   real(8), intent(in) :: DX(MAXPTS,MAXCENT), DY(MAXPTS,MAXCENT), DZ(MAXPTS,MAXCENT)
+   real(8), intent(in) :: R2(MAXPTS,MAXCENT)
+   real(8), intent(inout) :: CHI(MAXPTS,MAXPRIMS)
    
    ! Local variables
    integer :: I, J, IS
@@ -686,7 +711,8 @@ SUBROUTINE CALC_D_TYPE_PSI(J_START, J_END, PTS, D_TYPE, DX, DY, DZ, R2, CHI)
    RETURN
 END SUBROUTINE CALC_D_TYPE_PSI
 
-SUBROUTINE CALC_F_TYPE_PSI(J_START, J_END, PTS, F_TYPE, DX, DY, DZ, R2, CHI)
+SUBROUTINE CALC_F_TYPE_PSI(J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS, &
+                           F_TYPE, DX, DY, DZ, R2, CHI)
 !
 ! Calculate F-type orbital values (cubic in coordinates)
 !
@@ -695,11 +721,11 @@ SUBROUTINE CALC_F_TYPE_PSI(J_START, J_END, PTS, F_TYPE, DX, DY, DZ, R2, CHI)
    implicit none
    
    ! Arguments
-   integer, intent(in) :: J_START, J_END, PTS
+   integer, intent(in) :: J_START, J_END, PTS, MAXPTS, MAXCENT, MAXPRIMS
    character(len=3), intent(in) :: F_TYPE
-   real(8), intent(in) :: DX(2000,200), DY(2000,200), DZ(2000,200)
-   real(8), intent(in) :: R2(2000,200)
-   real(8), intent(inout) :: CHI(2000,2000)
+   real(8), intent(in) :: DX(MAXPTS,MAXCENT), DY(MAXPTS,MAXCENT), DZ(MAXPTS,MAXCENT)
+   real(8), intent(in) :: R2(MAXPTS,MAXCENT)
+   real(8), intent(inout) :: CHI(MAXPTS,MAXPRIMS)
    
    ! Local variables
    integer :: I, J, IS
@@ -736,3 +762,7 @@ SUBROUTINE CALC_F_TYPE_PSI(J_START, J_END, PTS, F_TYPE, DX, DY, DZ, R2, CHI)
    
    RETURN
 END SUBROUTINE CALC_F_TYPE_PSI
+
+! End of GAUS routines - Successfully converted to dynamic arrays
+! Current status: Dynamic allocation with explicit dimension passing
+! Implementation complete: Scalable and efficient memory usage
